@@ -1,33 +1,24 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Meu Painel de Organização</title>
-
-<!-- ============================================================
-     CONFIGURAÇÃO DO GOOGLE CALENDAR API
-     
-     Para ativar a integração com o Google Agenda:
-     1. Acesse https://console.cloud.google.com
-     2. Crie um projeto novo
-     3. Ative a "Google Calendar API"
-     4. Crie credenciais do tipo "OAuth 2.0 Client ID" (Web application)
-     5. Em "Authorized JavaScript origins" adicione a URL do seu site
-     6. Substitua os valores abaixo:
-     
-     const GOOGLE_CLIENT_ID = 'SEU_CLIENT_ID.apps.googleusercontent.com';
-     
-     7. Substitua os IDs das agendas (visível em Google Agenda > Configurações > Agenda):
-     
-     const CALENDAR_WORK   = 'rebeca.barbosa@justtraveltour.com';       (agenda profissional)
-     const CALENDAR_FAMILY = 'id_da_agenda_familiar@group.calendar.google.com';
-     
-     ============================================================ -->
-
+<!--
+  CONFIGURAÇÃO — substitua apenas estas 3 linhas:
+  
+  GOOGLE_CLIENT_ID : no Google Cloud Console → Credenciais → OAuth 2.0 Client ID
+  CALENDAR_WORK    : seu e-mail de trabalho (ex: rebeca@empresa.com)
+  CALENDAR_FAMILY  : ID da agenda familiar (Google Agenda → Configurações da agenda → ID)
+  
+  A API Key NÃO é mais necessária nesta versão.
+-->
+<script>
+  const GOOGLE_CLIENT_ID = 'SEU_CLIENT_ID.apps.googleusercontent.com';
+  const CALENDAR_WORK    = 'seu_email@trabalho.com';
+  const CALENDAR_FAMILY  = 'id_da_agenda_familiar@group.calendar.google.com';
+</script>
 <style>
-/* ===== RESET & BASE ===== */
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
   --bg:#f8f8f6;--bg2:#ffffff;--bg3:#f1f0eb;
@@ -49,8 +40,6 @@
   --amber:#ffc933;--amber-light:#2a2010;--amber-text:#ffd966;
 }}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px}
-
-/* ===== LAYOUT ===== */
 .app{max-width:1200px;margin:0 auto;padding:16px}
 .header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px}
 .header-left h1{font-size:22px;font-weight:600;letter-spacing:-.02em}
@@ -61,8 +50,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .tab.active{background:var(--bg2);color:var(--text);font-weight:500;border:0.5px solid var(--border)}
 .main-layout{display:grid;grid-template-columns:1fr 290px;gap:12px}
 @media(max-width:760px){.main-layout{grid-template-columns:1fr}.sidebar{display:none}}
-
-/* ===== CALENDAR ===== */
 .cal-nav{display:flex;align-items:center;gap:10px;margin-bottom:12px}
 .cal-nav h2{font-size:17px;font-weight:500;flex:1;text-align:center}
 .nav-btn{background:var(--bg2);border:0.5px solid var(--border);border-radius:7px;padding:5px 12px;cursor:pointer;font-size:15px;color:var(--text);transition:background .12s}
@@ -83,8 +70,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .ev-personal{background:var(--amber-light);color:var(--amber-text)}
 .ev-task{background:var(--red-light);color:var(--red-text)}
 .day-task-count{position:absolute;bottom:3px;right:5px;font-size:9px;color:var(--text3);font-weight:500}
-
-/* ===== SIDEBAR ===== */
 .sidebar{display:flex;flex-direction:column;gap:10px}
 .panel{background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--radius);padding:14px}
 .panel-title{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
@@ -94,8 +79,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .detail-event{display:flex;align-items:flex-start;gap:8px;padding:5px 7px;border-radius:6px;margin-bottom:3px;background:var(--bg3)}
 .dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;margin-top:3px}
 .dot-work{background:var(--blue)}.dot-family{background:var(--green)}.dot-personal{background:var(--amber)}.dot-task{background:var(--red)}
-
-/* ===== TASKS ===== */
 .task-item{display:flex;align-items:flex-start;gap:8px;padding:7px 0;border-bottom:0.5px solid var(--border)}
 .task-item:last-child{border-bottom:none}
 .task-check{width:16px;height:16px;border-radius:4px;border:1.5px solid var(--border2);cursor:pointer;flex-shrink:0;margin-top:1px;appearance:none;-webkit-appearance:none;background:var(--bg2);transition:all .15s}
@@ -106,20 +89,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .tag-family{background:var(--green-light);color:var(--green-text)}
 .tag-personal{background:var(--amber-light);color:var(--amber-text)}
 .tag-task{background:var(--red-light);color:var(--red-text)}
-
-/* ===== BUTTONS ===== */
 .btn{padding:7px 15px;border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit;border:0.5px solid var(--border2);background:var(--bg2);color:var(--text);transition:background .12s;font-weight:500}
 .btn:hover{background:var(--bg3)}
 .btn-primary{background:var(--blue);color:#fff;border-color:var(--blue)}
 .btn-primary:hover{opacity:.9}
-.btn-danger{background:var(--red-light);color:var(--red-text);border-color:transparent}
 .add-btn{background:var(--blue);color:#fff;border:none;border-radius:8px;padding:7px 14px;font-size:13px;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:5px;font-weight:500;white-space:nowrap}
 .add-btn:hover{opacity:.9}
 .google-btn{background:var(--bg2);border:0.5px solid var(--border2);border-radius:8px;padding:7px 14px;font-size:13px;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:8px;font-weight:500;color:var(--text);transition:background .12s}
 .google-btn:hover{background:var(--bg3)}
-.google-icon{width:18px;height:18px}
-
-/* ===== MODAL ===== */
+.google-btn.connected{background:var(--green-light);color:var(--green-text);border-color:transparent}
 .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;display:none;align-items:flex-start;justify-content:center;padding:16px;overflow-y:auto}
 .modal-bg.open{display:flex}
 .modal{background:var(--bg2);border-radius:14px;border:0.5px solid var(--border);padding:22px;width:100%;max-width:440px;margin:auto;box-shadow:0 20px 60px rgba(0,0,0,.2)}
@@ -130,50 +108,40 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .form-row input:focus,.form-row select:focus,.form-row textarea:focus{border-color:var(--blue)}
 .form-row textarea{min-height:64px;resize:vertical}
 .modal-btns{display:flex;gap:8px;justify-content:flex-end;margin-top:18px}
-
-/* ===== STATS ===== */
 .stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
 .stat-card{background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--radius-sm);padding:12px;text-align:center}
 .stat-num{font-size:26px;font-weight:600;color:var(--text)}
 .stat-label{font-size:11px;color:var(--text2);margin-top:3px}
-
-/* ===== DONE ===== */
 .done-month{margin-bottom:16px}
 .done-month h4{font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px;padding-bottom:5px;border-bottom:0.5px solid var(--border)}
 .done-item{display:flex;align-items:center;gap:9px;padding:6px 0;font-size:13px;color:var(--text2)}
 .check-icon{width:18px;height:18px;background:var(--green);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .check-icon svg{width:10px;height:10px}
-
-/* ===== GOOGLE SYNC BANNER ===== */
-.sync-banner{background:var(--blue-light);border:0.5px solid rgba(66,133,244,.25);border-radius:var(--radius-sm);padding:10px 14px;font-size:12px;color:var(--blue-text);margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.sync-banner{border-radius:var(--radius-sm);padding:10px 14px;font-size:12px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;background:var(--blue-light);border:0.5px solid rgba(66,133,244,.25);color:var(--blue-text)}
 .sync-banner.connected{background:var(--green-light);border-color:rgba(52,168,83,.25);color:var(--green-text)}
+.sync-banner.syncing{background:var(--amber-light);border-color:rgba(251,188,4,.25);color:var(--amber-text)}
 .legend{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px}
 .legend-item{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text2)}
 .legend-dot{width:9px;height:9px;border-radius:50%}
-
-/* ===== EMPTY STATE ===== */
 .empty{font-size:13px;color:var(--text3);text-align:center;padding:20px 0}
 .link-add{color:var(--blue);cursor:pointer;font-size:12px;margin-top:8px;display:inline-block}
 .link-add:hover{text-decoration:underline}
-
-/* ===== SCROLLBAR ===== */
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid currentColor;border-top-color:transparent;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px}
+@keyframes spin{to{transform:rotate(360deg)}}
 ::-webkit-scrollbar{width:5px;height:5px}
 ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
 </style>
 </head>
 <body>
 <div class="app">
-
-  <!-- HEADER -->
   <div class="header">
     <div class="header-left">
       <h1>📋 Meu Painel</h1>
-      <p id="header-date">Carregando...</p>
+      <p id="header-date"></p>
     </div>
     <div class="header-right">
-      <!-- Botão Google (aparece quando API configurada) -->
-      <button class="google-btn" id="google-auth-btn" onclick="handleGoogleAuth()" style="display:none">
-        <svg class="google-icon" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+      <button class="google-btn" id="google-btn" onclick="handleGoogleAuth()">
+        <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
         <span id="google-btn-text">Conectar Google Agenda</span>
       </button>
       <div class="tabs">
@@ -185,11 +153,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
     </div>
   </div>
 
-  <!-- VIEW: CALENDÁRIO -->
   <div id="view-calendar">
     <div class="sync-banner" id="sync-banner">
-      <span>💡 Conecte o Google Agenda para sincronizar seus compromissos automaticamente.</span>
-      <button class="btn" style="padding:4px 10px;font-size:12px" onclick="showView('settings')">Configurar</button>
+      <span id="sync-msg">💡 Conecte o Google Agenda para sincronizar seus compromissos.</span>
     </div>
     <div class="legend">
       <div class="legend-item"><div class="legend-dot" style="background:var(--blue)"></div>Trabalho</div>
@@ -216,9 +182,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
       </div>
       <div class="sidebar">
         <div class="panel">
-          <div id="day-detail-content">
-            <div class="empty">Clique em um dia para ver detalhes</div>
-          </div>
+          <div id="day-detail-content"><div class="empty">Clique em um dia para ver detalhes</div></div>
         </div>
         <div class="panel">
           <div class="panel-title">Esta Semana</div>
@@ -228,7 +192,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
     </div>
   </div>
 
-  <!-- VIEW: TAREFAS -->
   <div id="view-tasks" style="display:none">
     <div class="stats-row">
       <div class="stat-card"><div class="stat-num" id="stat-total">0</div><div class="stat-label">Total no mês</div></div>
@@ -241,7 +204,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
     </div>
   </div>
 
-  <!-- VIEW: REALIZADOS -->
   <div id="view-done" style="display:none">
     <div class="panel">
       <div class="panel-title" style="margin-bottom:6px">Suas Conquistas 🏆</div>
@@ -249,13 +211,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
       <div id="done-list"></div>
     </div>
   </div>
-
-</div><!-- .app -->
+</div>
 
 <!-- MODAL ADICIONAR -->
 <div class="modal-bg" id="modal-add" onclick="closeModalBg(event,'modal-add')">
   <div class="modal">
-    <h2 id="modal-add-title">Adicionar ao Calendário</h2>
+    <h2>Adicionar ao Calendário</h2>
     <div class="form-row">
       <label>Tipo</label>
       <select id="add-type" onchange="updateAddForm()">
@@ -299,29 +260,24 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
   <div class="modal" id="modal-day-content"></div>
 </div>
 
+<!-- Google Identity Services -->
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+
 <script>
-// ==================== CONFIGURAÇÃO ====================
-// Substitua com suas credenciais do Google Cloud Console
-const GOOGLE_CLIENT_ID = 'SEU_CLIENT_ID.apps.googleusercontent.com';
-const CALENDAR_WORK    = 'rebeca.barbosa@justtraveltour.com';
-const CALENDAR_FAMILY  = 'id_da_agenda_familiar@group.calendar.google.com';
+// ===== ESTADO GOOGLE =====
+let accessToken = null;
+let tokenExpiry = 0;
+let tokenClient = null;
 
-const SCOPES = 'https://www.googleapis.com/auth/calendar.readonly';
-// ======================================================
-
-// ===== DADOS LOCAIS (salvos no localStorage) =====
-const STORAGE_KEY = 'meu_painel_v1';
+// ===== DADOS LOCAIS =====
+const STORAGE_KEY = 'meu_painel_v2';
 
 function loadData() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) return JSON.parse(raw);
   } catch(e) {}
-  return {
-    events: getSampleEvents(),
-    doneArchive: getSampleDone(),
-    nextId: 100
-  };
+  return { events: getSampleEvents(), doneArchive: getSampleDone(), nextId: 100 };
 }
 
 function saveData() {
@@ -362,30 +318,127 @@ let { events, doneArchive, nextId } = loadData();
 const today = new Date();
 let curYear = today.getFullYear(), curMonth = today.getMonth();
 let selectedDayKey = null;
-
 const MONTHS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 const CATS = {
-  work:    { dot:'dot-work',    pill:'ev-work',    tag:'tag-work',    label:'Trabalho' },
-  family:  { dot:'dot-family',  pill:'ev-family',  tag:'tag-family',  label:'Família'  },
-  personal:{ dot:'dot-personal',pill:'ev-personal',tag:'tag-personal',label:'Pessoal'  },
-  task:    { dot:'dot-task',    pill:'ev-task',    tag:'tag-task',    label:'Tarefa'   },
+  work:    {dot:'dot-work',   pill:'ev-work',   tag:'tag-work',   label:'Trabalho'},
+  family:  {dot:'dot-family', pill:'ev-family', tag:'tag-family', label:'Família'},
+  personal:{dot:'dot-personal',pill:'ev-personal',tag:'tag-personal',label:'Pessoal'},
+  task:    {dot:'dot-task',   pill:'ev-task',   tag:'tag-task',   label:'Tarefa'},
 };
 
-function dateKey(y, m, d) {
-  return `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-}
-function todayKey() {
-  return dateKey(today.getFullYear(), today.getMonth(), today.getDate());
-}
+function dateKey(y,m,d){return `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`}
+function todayKey(){return dateKey(today.getFullYear(),today.getMonth(),today.getDate())}
+function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
 
-// ===== HEADER DATE =====
-function updateHeaderDate() {
-  const opts = {weekday:'long', year:'numeric', month:'long', day:'numeric'};
+// ===== HEADER =====
+function updateHeaderDate(){
   document.getElementById('header-date').textContent =
-    today.toLocaleDateString('pt-BR', opts);
+    today.toLocaleDateString('pt-BR',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
 }
 
-// ===== CALENDAR =====
+// ===== GOOGLE AUTH (Identity Services) =====
+function initGoogleAuth() {
+  if (!GOOGLE_CLIENT_ID || GOOGLE_CLIENT_ID.includes('SEU_CLIENT')) return;
+  tokenClient = google.accounts.oauth2.initTokenClient({
+    client_id: GOOGLE_CLIENT_ID,
+    scope: 'https://www.googleapis.com/auth/calendar.readonly',
+    callback: async (resp) => {
+      if (resp.error) { showBanner('error','Erro ao conectar: ' + resp.error); return; }
+      accessToken = resp.access_token;
+      tokenExpiry = Date.now() + (resp.expires_in - 60) * 1000;
+      setGoogleConnected(true);
+      await syncGoogleCalendars();
+    },
+  });
+}
+
+function handleGoogleAuth() {
+  if (!tokenClient) { alert('Configure o GOOGLE_CLIENT_ID no arquivo primeiro.'); return; }
+  if (accessToken && Date.now() < tokenExpiry) {
+    // já conectado — desconectar
+    google.accounts.oauth2.revoke(accessToken, () => {
+      accessToken = null; setGoogleConnected(false);
+      showBanner('info','Desconectado do Google Agenda.');
+    });
+  } else {
+    tokenClient.requestAccessToken();
+  }
+}
+
+function setGoogleConnected(on) {
+  const btn = document.getElementById('google-btn');
+  const txt = document.getElementById('google-btn-text');
+  btn.classList.toggle('connected', on);
+  txt.textContent = on ? 'Google conectado ✓' : 'Conectar Google Agenda';
+}
+
+// ===== SINCRONIZAÇÃO =====
+async function syncGoogleCalendars() {
+  if (!accessToken) return;
+  showBanner('syncing','<span class="spinner"></span>Sincronizando agendas...');
+
+  const now = new Date();
+  const timeMin = new Date(now.getFullYear(), now.getMonth() - 1, 1).toISOString();
+  const timeMax = new Date(now.getFullYear(), now.getMonth() + 4, 0).toISOString();
+
+  const cals = [
+    { id: CALENDAR_WORK || 'primary', category: 'work' },
+    ...(CALENDAR_FAMILY && !CALENDAR_FAMILY.includes('id_da_agenda') ? [{ id: CALENDAR_FAMILY, category: 'family' }] : [])
+  ];
+
+  let imported = 0;
+  for (const cal of cals) {
+    try {
+      const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(cal.id)}/events`
+        + `?timeMin=${encodeURIComponent(timeMin)}`
+        + `&timeMax=${encodeURIComponent(timeMax)}`
+        + `&singleEvents=true&maxResults=500&orderBy=startTime`;
+
+      const res = await fetch(url, {
+        headers: { Authorization: 'Bearer ' + accessToken }
+      });
+
+      if (!res.ok) {
+        const err = await res.json();
+        console.warn('Erro agenda', cal.id, err.error?.message);
+        continue;
+      }
+
+      const data = await res.json();
+      (data.items || []).forEach(ev => {
+        if (!ev.summary) return;
+        const dateRaw = ev.start?.dateTime || ev.start?.date;
+        if (!dateRaw) return;
+        const dateStr = dateRaw.split('T')[0];
+        const timeStr = ev.start?.dateTime ? ev.start.dateTime.slice(11,16) : undefined;
+        const exists = events.find(e => e.googleId === ev.id);
+        if (!exists) {
+          events.push({
+            id: nextId++, type: 'event',
+            title: ev.summary, date: dateStr,
+            time: timeStr, category: cal.category,
+            googleId: ev.id
+          });
+          imported++;
+        }
+      });
+    } catch(e) {
+      console.warn('Falha ao buscar agenda:', cal.id, e);
+    }
+  }
+
+  saveData();
+  renderCalendar();
+  showBanner('connected', `✅ Google Agenda sincronizado! ${imported} evento${imported !== 1 ? 's' : ''} importado${imported !== 1 ? 's' : ''}.`);
+}
+
+function showBanner(type, msg) {
+  const b = document.getElementById('sync-banner');
+  b.className = 'sync-banner' + (type === 'connected' ? ' connected' : type === 'syncing' ? ' syncing' : '');
+  document.getElementById('sync-msg').innerHTML = msg;
+}
+
+// ===== CALENDÁRIO =====
 function renderCalendar() {
   document.getElementById('month-title').textContent = `${MONTHS[curMonth]} ${curYear}`;
   const grid = document.getElementById('cal-grid');
@@ -400,16 +453,13 @@ function renderCalendar() {
     const cell = document.createElement('div');
     cell.className = 'cal-day';
     let dayNum, isOther = false, y = curYear, m = curMonth;
-
     if (i < firstDay) {
       dayNum = prevMonthDays - firstDay + i + 1; isOther = true;
       m = curMonth - 1; if (m < 0) { m = 11; y = curYear - 1; }
     } else if (i >= firstDay + daysInMonth) {
       dayNum = i - firstDay - daysInMonth + 1; isOther = true;
       m = curMonth + 1; if (m > 11) { m = 0; y = curYear + 1; }
-    } else {
-      dayNum = i - firstDay + 1;
-    }
+    } else { dayNum = i - firstDay + 1; }
 
     if (isOther) cell.classList.add('other-month');
     const key = dateKey(y, m, dayNum);
@@ -417,15 +467,12 @@ function renderCalendar() {
     if (key === selectedDayKey) cell.classList.add('selected');
 
     const numDiv = document.createElement('div');
-    numDiv.className = 'day-num';
-    numDiv.textContent = dayNum;
+    numDiv.className = 'day-num'; numDiv.textContent = dayNum;
     cell.appendChild(numDiv);
 
-    const evDiv = document.createElement('div');
-    evDiv.className = 'day-events';
+    const evDiv = document.createElement('div'); evDiv.className = 'day-events';
     const dayEvs = events.filter(e => e.date === key);
-    const eventsOnly = dayEvs.filter(e => e.type === 'event').slice(0, 2);
-    eventsOnly.forEach(ev => {
+    dayEvs.filter(e => e.type === 'event').slice(0,2).forEach(ev => {
       const p = document.createElement('div');
       p.className = 'event-pill ' + (CATS[ev.category]?.pill || 'ev-work');
       p.textContent = (ev.time ? ev.time.slice(0,5) + ' ' : '') + ev.title;
@@ -435,18 +482,12 @@ function renderCalendar() {
 
     const tasks = dayEvs.filter(e => e.type === 'task');
     if (tasks.length > 0) {
-      const tc = document.createElement('div');
-      tc.className = 'day-task-count';
+      const tc = document.createElement('div'); tc.className = 'day-task-count';
       const done = tasks.filter(t => t.done).length;
       tc.textContent = `${done}/${tasks.length} tarefa${tasks.length > 1 ? 's' : ''}`;
       cell.appendChild(tc);
     }
-
-    cell.onclick = () => {
-      selectedDayKey = key;
-      renderCalendar();
-      openDayDetail(key, dayNum, m, y);
-    };
+    cell.onclick = () => { selectedDayKey = key; renderCalendar(); openDayDetail(key, dayNum, m, y); };
     grid.appendChild(cell);
   }
   renderWeekTasks();
@@ -463,8 +504,7 @@ function renderWeekTasks() {
     return ed >= start && ed <= end;
   });
   if (weekTasks.length === 0) {
-    wt.innerHTML = '<div class="empty" style="padding:10px 0">Nenhuma tarefa esta semana</div>';
-    return;
+    wt.innerHTML = '<div class="empty" style="padding:10px 0">Nenhuma tarefa esta semana</div>'; return;
   }
   wt.innerHTML = '';
   weekTasks.forEach(t => buildTaskItem(t, wt, () => { renderCalendar(); renderWeekTasks(); }));
@@ -472,8 +512,7 @@ function renderWeekTasks() {
 
 function buildTaskItem(t, container, onToggle) {
   const cat = CATS[t.category] || CATS.task;
-  const item = document.createElement('div');
-  item.className = 'task-item';
+  const item = document.createElement('div'); item.className = 'task-item';
   item.innerHTML = `
     <input type="checkbox" class="task-check" data-id="${t.id}" ${t.done ? 'checked' : ''}>
     <span class="task-text" style="${t.done ? 'text-decoration:line-through;opacity:.45' : ''}">${escHtml(t.title)}</span>
@@ -485,149 +524,115 @@ function buildTaskItem(t, container, onToggle) {
   container.appendChild(item);
 }
 
-function escHtml(s) {
-  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
-
-// ===== DAY DETAIL =====
 function openDayDetail(key, dayNum, month, year) {
   const dayEvs = events.filter(e => e.date === key);
-  const mName = MONTHS[month];
-  const html = buildDayHTML(key, dayNum, mName, dayEvs);
+  const html = buildDayHTML(key, dayNum, MONTHS[month], dayEvs);
   const sidebar = document.getElementById('day-detail-content');
   sidebar.innerHTML = html;
-  wireTaskChecks(sidebar, key, dayNum, month, year);
-
+  wireChecks(sidebar, key, dayNum, month, year);
   if (window.innerWidth <= 760) {
     const mob = document.getElementById('modal-day-content');
     mob.innerHTML = `<button class="btn" style="margin-bottom:14px" onclick="document.getElementById('modal-day').classList.remove('open')">‹ Fechar</button>` + html;
-    wireTaskChecks(mob, key, dayNum, month, year);
+    wireChecks(mob, key, dayNum, month, year);
     document.getElementById('modal-day').classList.add('open');
   }
 }
 
 function buildDayHTML(key, dayNum, mName, dayEvs) {
-  const eventsOnly = dayEvs.filter(e => e.type === 'event');
-  const tasks = dayEvs.filter(e => e.type === 'task');
+  const evOnly = dayEvs.filter(e => e.type === 'event');
+  const tasks  = dayEvs.filter(e => e.type === 'task');
   let html = `<div class="day-detail-header">${dayNum} de ${mName}</div>`;
-
-  if (eventsOnly.length > 0) {
+  if (evOnly.length > 0) {
     html += `<div class="detail-section"><h4>Compromissos</h4>`;
-    eventsOnly.forEach(ev => {
+    evOnly.forEach(ev => {
       const cat = CATS[ev.category] || CATS.work;
-      html += `<div class="detail-event">
-        <div class="dot ${cat.dot}"></div>
-        <span style="font-size:13px;line-height:1.4">${ev.time ? `<strong>${ev.time.slice(0,5)}</strong> ` : ''}${escHtml(ev.title)}</span>
-      </div>`;
+      html += `<div class="detail-event"><div class="dot ${cat.dot}"></div>
+        <span style="font-size:13px;line-height:1.4">${ev.time ? `<strong>${ev.time.slice(0,5)}</strong> ` : ''}${escHtml(ev.title)}</span></div>`;
     });
     html += `</div>`;
   }
-
   if (tasks.length > 0) {
-    html += `<div class="detail-section"><h4>Tarefas</h4><div id="day-tasks-${key}">`;
+    html += `<div class="detail-section"><h4>Tarefas</h4>`;
     tasks.forEach(t => {
       const cat = CATS[t.category] || CATS.task;
       html += `<div class="task-item">
-        <input type="checkbox" class="task-check day-task-check" data-id="${t.id}" ${t.done ? 'checked' : ''}>
+        <input type="checkbox" class="task-check day-chk" data-id="${t.id}" ${t.done ? 'checked' : ''}>
         <span class="task-text" style="${t.done ? 'text-decoration:line-through;opacity:.45' : ''}">${escHtml(t.title)}</span>
-        <span class="task-tag ${cat.tag}">${cat.label}</span>
-      </div>`;
+        <span class="task-tag ${cat.tag}">${cat.label}</span></div>`;
     });
-    html += `</div></div>`;
+    html += `</div>`;
   }
-
-  if (eventsOnly.length === 0 && tasks.length === 0) {
-    html += `<div class="empty" style="margin-top:8px">Dia livre! 🎉</div>`;
-  }
-  html += `<div style="margin-top:10px">
-    <span class="link-add" onclick="openAddModal('${key}')">+ Adicionar neste dia</span>
-  </div>`;
+  if (!evOnly.length && !tasks.length) html += `<div class="empty" style="margin-top:8px">Dia livre! 🎉</div>`;
+  html += `<div style="margin-top:10px"><span class="link-add" onclick="openAddModal('${key}')">+ Adicionar neste dia</span></div>`;
   return html;
 }
 
-function wireTaskChecks(container, key, dayNum, month, year) {
-  container.querySelectorAll('.day-task-check').forEach(cb => {
+function wireChecks(container, key, dayNum, month, year) {
+  container.querySelectorAll('.day-chk').forEach(cb => {
     cb.addEventListener('change', function() {
       toggleTask(parseInt(this.dataset.id), this.checked);
-      renderCalendar();
-      openDayDetail(key, dayNum, month, year);
-      renderTasksView();
-      renderDoneView();
+      renderCalendar(); openDayDetail(key, dayNum, month, year);
+      renderTasksView(); renderDoneView();
     });
   });
 }
 
-// ===== TOGGLE TASK =====
 function toggleTask(id, val) {
-  const t = events.find(e => e.id === id);
-  if (!t) return;
+  const t = events.find(e => e.id === id); if (!t) return;
   t.done = val;
-  if (val) {
-    doneArchive.push({ title: t.title, date: t.date, category: t.category });
-  } else {
+  if (val) doneArchive.push({title:t.title, date:t.date, category:t.category});
+  else {
     const idx = doneArchive.map(d=>d.title+d.date).lastIndexOf(t.title+t.date);
     if (idx >= 0) doneArchive.splice(idx, 1);
   }
   saveData();
 }
 
-// ===== TASKS VIEW =====
 function renderTasksView() {
-  const monthStr = `${curYear}-${String(curMonth + 1).padStart(2,'0')}`;
-  const monthTasks = events.filter(e => e.type === 'task' && e.date.startsWith(monthStr));
-  document.getElementById('stat-total').textContent = monthTasks.length;
-  document.getElementById('stat-done').textContent = monthTasks.filter(t => t.done).length;
-  document.getElementById('stat-pend').textContent = monthTasks.filter(t => !t.done).length;
+  const ms = `${curYear}-${String(curMonth+1).padStart(2,'0')}`;
+  const mt = events.filter(e => e.type==='task' && e.date.startsWith(ms));
+  document.getElementById('stat-total').textContent = mt.length;
+  document.getElementById('stat-done').textContent  = mt.filter(t=>t.done).length;
+  document.getElementById('stat-pend').textContent  = mt.filter(t=>!t.done).length;
   const list = document.getElementById('all-tasks-list');
-  if (monthTasks.length === 0) {
-    list.innerHTML = '<div class="empty">Nenhuma tarefa neste mês.</div>'; return;
-  }
-  list.innerHTML = '';
-  // Sort: pending first
-  const sorted = [...monthTasks].sort((a,b) => a.done - b.done);
-  sorted.forEach(t => {
-    const cat = CATS[t.category] || CATS.task;
-    const item = document.createElement('div'); item.className = 'task-item';
-    item.innerHTML = `
-      <input type="checkbox" class="task-check" data-id="${t.id}" ${t.done ? 'checked' : ''}>
-      <span class="task-text" style="${t.done ? 'text-decoration:line-through;opacity:.45' : ''}">
-        ${escHtml(t.title)}
-        <span style="font-size:11px;color:var(--text3);margin-left:4px">${t.date}</span>
-      </span>
+  if (!mt.length) { list.innerHTML='<div class="empty">Nenhuma tarefa neste mês.</div>'; return; }
+  list.innerHTML='';
+  [...mt].sort((a,b)=>a.done-b.done).forEach(t => {
+    const cat = CATS[t.category]||CATS.task;
+    const item = document.createElement('div'); item.className='task-item';
+    item.innerHTML=`
+      <input type="checkbox" class="task-check" data-id="${t.id}" ${t.done?'checked':''}>
+      <span class="task-text" style="${t.done?'text-decoration:line-through;opacity:.45':''}">
+        ${escHtml(t.title)}<span style="font-size:11px;color:var(--text3);margin-left:4px">${t.date}</span></span>
       <span class="task-tag ${cat.tag}">${cat.label}</span>`;
-    item.querySelector('.task-check').addEventListener('change', function() {
-      toggleTask(parseInt(this.dataset.id), this.checked);
-      renderTasksView(); renderDoneView(); renderCalendar();
+    item.querySelector('.task-check').addEventListener('change',function(){
+      toggleTask(parseInt(this.dataset.id),this.checked);
+      renderTasksView();renderDoneView();renderCalendar();
     });
     list.appendChild(item);
   });
 }
 
-// ===== DONE VIEW =====
 function renderDoneView() {
   const list = document.getElementById('done-list');
-  if (doneArchive.length === 0) {
-    list.innerHTML = '<div class="empty">Suas realizações aparecerão aqui quando você concluir tarefas! ✨</div>';
-    return;
+  if (!doneArchive.length) {
+    list.innerHTML='<div class="empty">Suas realizações aparecerão aqui! ✨</div>'; return;
   }
-  const grouped = {};
-  [...doneArchive].reverse().forEach(d => {
-    const parts = d.date.split('-');
-    const key = `${MONTHS[parseInt(parts[1])-1]} ${parts[0]}`;
-    if (!grouped[key]) grouped[key] = [];
-    grouped[key].push(d);
+  const grouped={};
+  [...doneArchive].reverse().forEach(d=>{
+    const p=d.date.split('-');
+    const k=`${MONTHS[parseInt(p[1])-1]} ${p[0]}`;
+    if(!grouped[k])grouped[k]=[];
+    grouped[k].push(d);
   });
-  list.innerHTML = '';
-  Object.keys(grouped).forEach(month => {
-    const sec = document.createElement('div'); sec.className = 'done-month';
-    sec.innerHTML = `<h4>${month}</h4>`;
-    grouped[month].forEach(d => {
-      const cat = CATS[d.category] || CATS.task;
-      const item = document.createElement('div'); item.className = 'done-item';
-      item.innerHTML = `
-        <div class="check-icon">
-          <svg viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5L8.5 2.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
+  list.innerHTML='';
+  Object.keys(grouped).forEach(month=>{
+    const sec=document.createElement('div');sec.className='done-month';
+    sec.innerHTML=`<h4>${month}</h4>`;
+    grouped[month].forEach(d=>{
+      const cat=CATS[d.category]||CATS.task;
+      const item=document.createElement('div');item.className='done-item';
+      item.innerHTML=`<div class="check-icon"><svg viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5L8.5 2.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
         <span>${escHtml(d.title)}</span>
         <span class="task-tag ${cat.tag}" style="margin-left:auto">${cat.label}</span>`;
       sec.appendChild(item);
@@ -636,162 +641,63 @@ function renderDoneView() {
   });
 }
 
-// ===== VIEW SWITCHER =====
 function showView(v) {
-  ['calendar','tasks','done'].forEach(x => {
-    document.getElementById('view-'+x).style.display = x === v ? 'block' : 'none';
+  ['calendar','tasks','done'].forEach(x=>{
+    document.getElementById('view-'+x).style.display=x===v?'block':'none';
   });
-  document.querySelectorAll('.tab').forEach((t, i) => {
-    t.classList.toggle('active', ['calendar','tasks','done'][i] === v);
+  document.querySelectorAll('.tab').forEach((t,i)=>{
+    t.classList.toggle('active',['calendar','tasks','done'][i]===v);
   });
-  if (v === 'tasks') renderTasksView();
-  if (v === 'done') renderDoneView();
+  if(v==='tasks')renderTasksView();
+  if(v==='done')renderDoneView();
 }
 
-function prevMonth() { curMonth--; if (curMonth < 0) { curMonth = 11; curYear--; } selectedDayKey = null; renderCalendar(); }
-function nextMonth() { curMonth++; if (curMonth > 11) { curMonth = 0; curYear++; } selectedDayKey = null; renderCalendar(); }
+function prevMonth(){curMonth--;if(curMonth<0){curMonth=11;curYear--;}selectedDayKey=null;renderCalendar();}
+function nextMonth(){curMonth++;if(curMonth>11){curMonth=0;curYear++;}selectedDayKey=null;renderCalendar();}
 
-// ===== ADD MODAL =====
-function openAddModal(prefillDate) {
-  document.getElementById('add-title').value = '';
-  document.getElementById('add-time').value = '';
-  document.getElementById('add-note').value = '';
-  document.getElementById('add-type').value = 'event';
-  document.getElementById('add-category').value = 'work';
-  document.getElementById('add-date').value = prefillDate || todayKey();
+function openAddModal(prefillDate){
+  ['add-title','add-time','add-note'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('add-type').value='event';
+  document.getElementById('add-category').value='work';
+  document.getElementById('add-date').value=prefillDate||todayKey();
   updateAddForm();
   document.getElementById('modal-add').classList.add('open');
 }
-
-function updateAddForm() {
-  const isTask = document.getElementById('add-type').value === 'task';
-  document.getElementById('row-note').style.display = isTask ? 'block' : 'none';
-  document.getElementById('row-time').style.display = isTask ? 'none' : 'block';
+function updateAddForm(){
+  const isTask=document.getElementById('add-type').value==='task';
+  document.getElementById('row-note').style.display=isTask?'block':'none';
+  document.getElementById('row-time').style.display=isTask?'none':'block';
 }
-
-function closeModalBg(e, id) {
-  if (e.target === document.getElementById(id))
-    document.getElementById(id).classList.remove('open');
-}
-
-function saveItem() {
-  const title = document.getElementById('add-title').value.trim();
-  if (!title) { document.getElementById('add-title').focus(); return; }
-  const obj = {
-    id: nextId++,
-    type: document.getElementById('add-type').value,
+function closeModalBg(e,id){if(e.target===document.getElementById(id))document.getElementById(id).classList.remove('open');}
+function saveItem(){
+  const title=document.getElementById('add-title').value.trim();
+  if(!title){document.getElementById('add-title').focus();return;}
+  events.push({
+    id:nextId++,
+    type:document.getElementById('add-type').value,
     title,
-    date: document.getElementById('add-date').value,
-    time: document.getElementById('add-time').value || undefined,
-    category: document.getElementById('add-category').value,
-    done: false
-  };
-  events.push(obj);
+    date:document.getElementById('add-date').value,
+    time:document.getElementById('add-time').value||undefined,
+    category:document.getElementById('add-category').value,
+    done:false
+  });
   saveData();
   document.getElementById('modal-add').classList.remove('open');
-  renderCalendar();
-  renderTasksView();
-}
-
-// ===== GOOGLE CALENDAR API =====
-// Esta seção só ativa quando GOOGLE_CLIENT_ID e GOOGLE_API_KEY estiverem preenchidos
-let googleSignedIn = false;
-
-function initGoogleAPI() {
-  if (!GOOGLE_CLIENT_ID || !GOOGLE_API_KEY) return; // Sem credenciais, pula
-  document.getElementById('google-auth-btn').style.display = 'flex';
-
-  gapi.load('client:auth2', async () => {
-    await gapi.client.init({
-      apiKey: GOOGLE_API_KEY,
-      clientId: GOOGLE_CLIENT_ID,
-      discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest'],
-      scope: SCOPES
-    });
-    const authInstance = gapi.auth2.getAuthInstance();
-    authInstance.isSignedIn.listen(updateGoogleSigninStatus);
-    updateGoogleSigninStatus(authInstance.isSignedIn.get());
-  });
-}
-
-function updateGoogleSigninStatus(isSignedIn) {
-  googleSignedIn = isSignedIn;
-  const btn = document.getElementById('google-auth-btn');
-  const btnText = document.getElementById('google-btn-text');
-  const banner = document.getElementById('sync-banner');
-  if (isSignedIn) {
-    btnText.textContent = 'Google conectado ✓';
-    btn.style.background = 'var(--green-light)';
-    btn.style.color = 'var(--green-text)';
-    banner.className = 'sync-banner connected';
-    banner.innerHTML = '<span>✅ Google Agenda conectado — calendário sincronizado!</span>';
-    loadGoogleEvents();
-  } else {
-    btnText.textContent = 'Conectar Google Agenda';
-    btn.style.background = '';
-    btn.style.color = '';
-  }
-}
-
-async function handleGoogleAuth() {
-  if (!GOOGLE_CLIENT_ID) { alert('Configure o GOOGLE_CLIENT_ID no código antes de conectar.'); return; }
-  const auth = gapi.auth2.getAuthInstance();
-  if (googleSignedIn) {
-    await auth.signOut();
-  } else {
-    await auth.signIn();
-  }
-}
-
-async function loadGoogleEvents() {
-  if (!googleSignedIn) return;
-  const now = new Date();
-  const start = new Date(now.getFullYear(), now.getMonth() - 1, 1).toISOString();
-  const end   = new Date(now.getFullYear(), now.getMonth() + 3, 0).toISOString();
-
-  const calendars = [
-    { id: CALENDAR_WORK || 'primary', category: 'work' },
-    ...(CALENDAR_FAMILY ? [{ id: CALENDAR_FAMILY, category: 'family' }] : [])
-  ];
-
-  for (const cal of calendars) {
-    try {
-      const res = await gapi.client.calendar.events.list({
-        calendarId: cal.id, timeMin: start, timeMax: end,
-        showDeleted: false, singleEvents: true, maxResults: 250,
-        orderBy: 'startTime'
-      });
-      (res.result.items || []).forEach(ev => {
-        if (!ev.summary) return;
-        const dateRaw = ev.start.dateTime || ev.start.date;
-        const dateStr = dateRaw.split('T')[0];
-        const timeStr = ev.start.dateTime ? ev.start.dateTime.slice(11,16) : undefined;
-        // Avoid duplicates
-        const exists = events.find(e => e.title === ev.summary && e.date === dateStr);
-        if (!exists) {
-          events.push({ id: nextId++, type: 'event', title: ev.summary,
-            date: dateStr, time: timeStr, category: cal.category, googleId: ev.id });
-        }
-      });
-    } catch(e) { console.warn('Erro ao carregar agenda:', cal.id, e); }
-  }
-  saveData();
-  renderCalendar();
+  renderCalendar();renderTasksView();
 }
 
 // ===== INIT =====
 updateHeaderDate();
 renderCalendar();
 
-// Carrega Google API se disponível
-if (typeof gapi !== 'undefined') {
-  initGoogleAPI();
-} else if (GOOGLE_CLIENT_ID) {
-  const s = document.createElement('script');
-  s.src = 'https://apis.google.com/js/api.js';
-  s.onload = initGoogleAPI;
-  document.head.appendChild(s);
-}
+// Aguarda o script do Google carregar antes de inicializar
+window.addEventListener('load', () => {
+  if (typeof google !== 'undefined' && google.accounts) {
+    initGoogleAuth();
+  } else {
+    document.querySelector('script[src*="gsi"]').addEventListener('load', initGoogleAuth);
+  }
+});
 </script>
 </body>
 </html>
