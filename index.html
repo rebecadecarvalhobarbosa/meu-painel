@@ -130,6 +130,19 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 @keyframes spin{to{transform:rotate(360deg)}}
 ::-webkit-scrollbar{width:5px;height:5px}
 ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
+.del-btn{background:none;border:none;cursor:pointer;color:var(--text3);padding:2px 4px;border-radius:4px;font-size:14px;line-height:1;flex-shrink:0;transition:color .12s,background .12s;margin-left:2px}
+.del-btn:hover{color:var(--red);background:var(--red-light)}
+.detail-event{position:relative}
+.detail-event:hover .del-btn{opacity:1}
+.detail-event .del-btn{opacity:0;position:absolute;right:4px;top:50%;transform:translateY(-50%)}
+.confirm-delete{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:300;display:none;align-items:center;justify-content:center;padding:16px}
+.confirm-delete.open{display:flex}
+.confirm-box{background:var(--bg2);border-radius:12px;padding:20px;max-width:360px;width:100%;border:0.5px solid var(--border)}
+.confirm-box h3{font-size:15px;font-weight:600;margin-bottom:8px}
+.confirm-box p{font-size:13px;color:var(--text2);margin-bottom:16px;line-height:1.5}
+.confirm-btns{display:flex;gap:8px;justify-content:flex-end}
+.btn-delete{background:var(--red);color:#fff;border:none;border-radius:8px;padding:7px 15px;font-size:13px;cursor:pointer;font-family:inherit;font-weight:500}
+.btn-delete:hover{opacity:.9}
 </style>
 </head>
 <body>
@@ -260,6 +273,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
   <div class="modal" id="modal-day-content"></div>
 </div>
 
+<!-- CONFIRM DELETE -->
+<div class="confirm-delete" id="confirm-delete">
+  <div class="confirm-box">
+    <h3>Excluir item</h3>
+    <p id="confirm-msg">Tem certeza que deseja excluir este item?</p>
+    <div class="confirm-btns">
+      <button class="btn" onclick="document.getElementById('confirm-delete').classList.remove('open')">Cancelar</button>
+      <button class="btn-delete" id="confirm-yes">Excluir</button>
+    </div>
+  </div>
+</div>
+
 <!-- Google Identity Services -->
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 
@@ -382,11 +407,9 @@ async function syncGoogleCalendars() {
   const timeMax = new Date(now.getFullYear(), now.getMonth() + 4, 0).toISOString();
 
   const cals = [
-  { id: CALENDAR_WORK || 'primary', category: 'work' },
-  { id: 'rebecadecarvalhobarbosa@gmail.com', category: 'personal' },
-  { id: CALENDAR_WORK, category: 'work' },  
-  ...(CALENDAR_FAMILY && !CALENDAR_FAMILY.includes('id_da_agenda') ? [{ id: CALENDAR_FAMILY, category: 'family' }] : [])
-];
+    { id: CALENDAR_WORK || 'primary', category: 'work' },
+    ...(CALENDAR_FAMILY && !CALENDAR_FAMILY.includes('id_da_agenda') ? [{ id: CALENDAR_FAMILY, category: 'family' }] : [])
+  ];
 
   let imported = 0;
   for (const cal of cals) {
@@ -518,10 +541,15 @@ function buildTaskItem(t, container, onToggle) {
   item.innerHTML = `
     <input type="checkbox" class="task-check" data-id="${t.id}" ${t.done ? 'checked' : ''}>
     <span class="task-text" style="${t.done ? 'text-decoration:line-through;opacity:.45' : ''}">${escHtml(t.title)}</span>
-    <span class="task-tag ${cat.tag}">${cat.label}</span>`;
+    <span class="task-tag ${cat.tag}">${cat.label}</span>
+    <button class="del-btn" title="Excluir">✕</button>`;
   item.querySelector('.task-check').addEventListener('change', function() {
     toggleTask(t.id, this.checked);
     if (onToggle) onToggle();
+  });
+  item.querySelector('.del-btn').addEventListener('click', function(e) {
+    e.stopPropagation();
+    deleteItem(t.id, onToggle);
   });
   container.appendChild(item);
 }
@@ -548,8 +576,11 @@ function buildDayHTML(key, dayNum, mName, dayEvs) {
     html += `<div class="detail-section"><h4>Compromissos</h4>`;
     evOnly.forEach(ev => {
       const cat = CATS[ev.category] || CATS.work;
-      html += `<div class="detail-event"><div class="dot ${cat.dot}"></div>
-        <span style="font-size:13px;line-height:1.4">${ev.time ? `<strong>${ev.time.slice(0,5)}</strong> ` : ''}${escHtml(ev.title)}</span></div>`;
+      html += `<div class="detail-event">
+        <div class="dot ${cat.dot}"></div>
+        <span style="font-size:13px;line-height:1.4">${ev.time ? `<strong>${ev.time.slice(0,5)}</strong> ` : ''}${escHtml(ev.title)}</span>
+        <button class="del-btn" data-id="${ev.id}" title="Excluir">✕</button>
+      </div>`;
     });
     html += `</div>`;
   }
@@ -560,7 +591,9 @@ function buildDayHTML(key, dayNum, mName, dayEvs) {
       html += `<div class="task-item">
         <input type="checkbox" class="task-check day-chk" data-id="${t.id}" ${t.done ? 'checked' : ''}>
         <span class="task-text" style="${t.done ? 'text-decoration:line-through;opacity:.45' : ''}">${escHtml(t.title)}</span>
-        <span class="task-tag ${cat.tag}">${cat.label}</span></div>`;
+        <span class="task-tag ${cat.tag}">${cat.label}</span>
+        <button class="del-btn day-del" data-id="${t.id}" title="Excluir">✕</button>
+      </div>`;
     });
     html += `</div>`;
   }
@@ -577,6 +610,12 @@ function wireChecks(container, key, dayNum, month, year) {
       renderTasksView(); renderDoneView();
     });
   });
+  container.querySelectorAll('.day-del, .detail-event .del-btn').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      deleteItem(parseInt(this.dataset.id), () => openDayDetail(key, dayNum, month, year));
+    });
+  });
 }
 
 function toggleTask(id, val) {
@@ -588,6 +627,34 @@ function toggleTask(id, val) {
     if (idx >= 0) doneArchive.splice(idx, 1);
   }
   saveData();
+}
+
+function confirmDelete(msg, onConfirm) {
+  document.getElementById('confirm-msg').textContent = msg;
+  document.getElementById('confirm-delete').classList.add('open');
+  const btn = document.getElementById('confirm-yes');
+  const newBtn = btn.cloneNode(true);
+  btn.parentNode.replaceChild(newBtn, btn);
+  newBtn.addEventListener('click', () => {
+    document.getElementById('confirm-delete').classList.remove('open');
+    onConfirm();
+  });
+}
+
+function deleteItem(id, afterDelete) {
+  const item = events.find(e => e.id === id);
+  if (!item) return;
+  const label = item.type === 'task' ? 'tarefa' : 'evento';
+  confirmDelete(`Excluir ${label} "${item.title}"? Esta ação não pode ser desfeita.`, () => {
+    events = events.filter(e => e.id !== id);
+    // remove from done archive too if it was there
+    doneArchive = doneArchive.filter(d => !(d.title === item.title && d.date === item.date));
+    saveData();
+    renderCalendar();
+    renderTasksView();
+    renderDoneView();
+    if (afterDelete) afterDelete();
+  });
 }
 
 function renderTasksView() {
@@ -606,10 +673,15 @@ function renderTasksView() {
       <input type="checkbox" class="task-check" data-id="${t.id}" ${t.done?'checked':''}>
       <span class="task-text" style="${t.done?'text-decoration:line-through;opacity:.45':''}">
         ${escHtml(t.title)}<span style="font-size:11px;color:var(--text3);margin-left:4px">${t.date}</span></span>
-      <span class="task-tag ${cat.tag}">${cat.label}</span>`;
+      <span class="task-tag ${cat.tag}">${cat.label}</span>
+      <button class="del-btn" title="Excluir">✕</button>`;
     item.querySelector('.task-check').addEventListener('change',function(){
       toggleTask(parseInt(this.dataset.id),this.checked);
       renderTasksView();renderDoneView();renderCalendar();
+    });
+    item.querySelector('.del-btn').addEventListener('click',function(e){
+      e.stopPropagation();
+      deleteItem(t.id, ()=>{renderTasksView();renderDoneView();});
     });
     list.appendChild(item);
   });
