@@ -382,9 +382,10 @@ async function syncGoogleCalendars() {
   const timeMax = new Date(now.getFullYear(), now.getMonth() + 4, 0).toISOString();
 
   const cals = [
-    { id: CALENDAR_WORK || 'primary', category: 'work' },
-    ...(CALENDAR_FAMILY && !CALENDAR_FAMILY.includes('id_da_agenda') ? [{ id: CALENDAR_FAMILY, category: 'family' }] : [])
-  ];
+  { id: CALENDAR_WORK || 'primary', category: 'work' },
+  { id: 'rebecadecarvalhobarbosa@gmail.com', category: 'personal' },
+  ...(CALENDAR_FAMILY && !CALENDAR_FAMILY.includes('id_da_agenda') ? [{ id: CALENDAR_FAMILY, category: 'family' }] : [])
+];
 
   let imported = 0;
   for (const cal of cals) {
