@@ -384,6 +384,7 @@ async function syncGoogleCalendars() {
   const cals = [
   { id: CALENDAR_WORK || 'primary', category: 'work' },
   { id: 'rebecadecarvalhobarbosa@gmail.com', category: 'personal' },
+  { id: CALENDAR_WORK, category: 'work' },  
   ...(CALENDAR_FAMILY && !CALENDAR_FAMILY.includes('id_da_agenda') ? [{ id: CALENDAR_FAMILY, category: 'family' }] : [])
 ];
 
